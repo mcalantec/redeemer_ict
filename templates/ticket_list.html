@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Tickets - ICT Center{% endblock %}
+
+{% block content %}
+<div class="tickets-container">
+    <div class="tickets-header">
+        <h1>
+            {% if user.userprofile.role == 'admin' %}
+            All Tickets
+            {% elif user.userprofile.role == 'staff' %}
+            Assigned Tickets
+            {% else %}
+            My Tickets
+            {% endif %}
+        </h1>
+        
+        <div class="tickets-filters">
+            <select id="status-filter" onchange="filterTickets()">
+                <option value="">All Status</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="assigned" {% if status_filter == 'assigned' %}selected{% endif %}>Assigned</option>
+                <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Closed</option>
+            </select>
+            
+            <select id="category-filter" onchange="filterTickets()">
+                <option value="">All Categories</option>
+                <option value="software" {% if category_filter == 'software' %}selected{% endif %}>Software</option>
+                <option value="hardware" {% if category_filter == 'hardware' %}selected{% endif %}>Hardware</option>
+                <option value="network" {% if category_filter == 'network' %}selected{% endif %}>Network</option>
+                <option value="account" {% if category_filter == 'account' %}selected{% endif %}>Account Issues</option>
+                <option value="other" {% if category_filter == 'other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+    </div>
+    
+    {% if page_obj %}
+    <div class="tickets-grid">
+        {% for ticket in page_obj %}
+        <div class="ticket-card">
+            <div class="ticket-card-header">
+                <span class="ticket-id">{{ ticket.ticket_id }}</span>
+                <span class="ticket-priority priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</span>
+            </div>
+            
+            <h3><a href="{% url 'ticket_detail' ticket.ticket_id %}">{{ ticket.title }}</a></h3>
+            
+            <div class="ticket-meta">
+                <span class="ticket-category">{{ ticket.get_category_display }}</span>
+                <span class="ticket-date">{{ ticket.created_at|date:"M d, Y" }}</span>
+            </div>
+            
+            <div class="ticket-status">
+                <span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span>
+            </div>
+            
+            <div class="ticket-assignment">
+                {% if ticket.assigned_to %}
+                <small>Assigned to: {{ ticket.assigned_to.get_full_name|default:ticket.assigned_to.username }}</small>
+                {% else %}
+                <small>Unassigned</small>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="page-link">&laquo; First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="page-link">Previous</a>
+        {% endif %}
+        
+        <span class="page-current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="page-link">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="page-link">Last &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="no-tickets">
+        <p>No tickets found.</p>
+        <a href="{% url 'create_ticket' %}" class="btn btn-primary">Create Your First Ticket</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function filterTickets() {
+    const status = document.getElementById('status-filter').value;
+    const category = document.getElementById('category-filter').value;
+    
+    let url = new URL(window.location);
+    if (status) {
+        url.searchParams.set('status', status);
+    } else {
+        url.searchParams.delete('status');
+    }
+    
+    if (category) {
+        url.searchParams.set('category', category);
+    } else {
+        url.searchParams.delete('category');
+    }
+    
+    window.location = url;
+}
+</script>
+{% endblock %}

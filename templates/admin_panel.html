@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel - ICT Center{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>Administrator Panel</h1>
+    
+    <div class="admin-tabs">
+        <button class="tab-button active" onclick="showTab('users')">Users</button>
+        <button class="tab-button" onclick="showTab('tickets')">Tickets</button>
+        <button class="tab-button" onclick="showTab('reports')">Reports</button>
+    </div>
+    
+    <div id="users-tab" class="tab-content active">
+        <h2>User Management</h2>
+        <div class="users-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Department</th>
+                        <th>Date Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.get_full_name|default:'-' }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <span class="role-badge role-{{ user.userprofile.role }}">
+                                {{ user.userprofile.get_role_display }}
+                            </span>
+                        </td>
+                        <td>{{ user.userprofile.department|default:'-' }}</td>
+                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div id="tickets-tab" class="tab-content">
+        <h2>Recent Tickets</h2>
+        <div class="admin-tickets">
+            {% for ticket in tickets %}
+            <div class="admin-ticket-card">
+                <div class="ticket-header">
+                    <span class="ticket-id">{{ ticket.ticket_id }}</span>
+                    <span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span>
+                </div>
+                <h3><a href="{% url 'ticket_detail' ticket.ticket_id %}">{{ ticket.title }}</a></h3>
+                <div class="ticket-info">
+                    <span>Created by: {{ ticket.created_by.get_full_name|default:ticket.created_by.username }}</span>
+                    <span>Category: {{ ticket.get_category_display }}</span>
+                    <span>{{ ticket.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div id="reports-tab" class="tab-content">
+        <h2>System Reports</h2>
+        <div class="reports-grid">
+            <div class="report-card">
+                <h3>Ticket Statistics</h3>
+                <div class="report-stats">
+                    <div class="stat">
+                        <label>Total Tickets:</label>
+                        <span>{{ tickets|length }}</span>
+                    </div>
+                    <div class="stat">
+                        <label>Active Users:</label>
+                        <span>{{ users|length }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="report-card">
+                <h3>Performance Metrics</h3>
+                <div class="report-stats">
+                    <div class="stat">
+                        <label>Avg. Resolution Time:</label>
+                        <span>2.3 days</span>
+                    </div>
+                    <div class="stat">
+                        <label>User Satisfaction:</label>
+                        <span>94%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+}
+</script>
+{% endblock %}

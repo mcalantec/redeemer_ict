@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - ICT Center{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome, {{ user.get_full_name|default:user.username }}!</h1>
+        <p class="user-role">{{ user.userprofile.role|title }} Dashboard</p>
+    </div>
+
+    <div class="stats-grid">
+        {% if user.userprofile.role == 'admin' %}
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_tickets }}</div>
+            <div class="stat-label">Total Tickets</div>
+        </div>
+        {% elif user.userprofile.role == 'staff' %}
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.assigned_tickets }}</div>
+            <div class="stat-label">Assigned to Me</div>
+        </div>
+        {% else %}
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.my_tickets }}</div>
+            <div class="stat-label">My Tickets</div>
+        </div>
+        {% endif %}
+        
+        <div class="stat-card pending">
+            <div class="stat-number">{{ stats.pending_tickets }}</div>
+            <div class="stat-label">Pending</div>
+        </div>
+        
+        <div class="stat-card progress">
+            <div class="stat-number">{{ stats.in_progress_tickets }}</div>
+            <div class="stat-label">In Progress</div>
+        </div>
+        
+        <div class="stat-card resolved">
+            <div class="stat-number">{{ stats.resolved_tickets }}</div>
+            <div class="stat-label">Resolved</div>
+        </div>
+    </div>
+
+    <div class="recent-tickets">
+        <h2>Recent Tickets</h2>
+        {% if recent_tickets %}
+        <div class="tickets-list">
+            {% for ticket in recent_tickets %}
+            <div class="ticket-item">
+                <div class="ticket-header">
+                    <span class="ticket-id">{{ ticket.ticket_id }}</span>
+                    <span class="ticket-status status-{{ ticket.status }}">{{ ticket.get_status_display }}</span>
+                </div>
+                <h3><a href="{% url 'ticket_detail' ticket.ticket_id %}">{{ ticket.title }}</a></h3>
+                <div class="ticket-meta">
+                    <span class="ticket-category">{{ ticket.get_category_display }}</span>
+                    <span class="ticket-date">{{ ticket.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="view-all">
+            <a href="{% url 'ticket_list' %}" class="btn btn-primary">View All Tickets</a>
+        </div>
+        {% else %}
+        <p class="no-tickets">No tickets found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

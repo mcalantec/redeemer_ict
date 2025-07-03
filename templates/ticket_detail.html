@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ ticket.ticket_id }} - ICT Center{% endblock %}
+
+{% block content %}
+<div class="ticket-detail-container">
+    <div class="ticket-header">
+        <div class="ticket-title-section">
+            <h1>{{ ticket.title }}</h1>
+            <span class="ticket-id">{{ ticket.ticket_id }}</span>
+        </div>
+        
+        <div class="ticket-status-section">
+            <span class="status-badge status-{{ ticket.status }}">{{ ticket.get_status_display }}</span>
+            
+            {% if user.userprofile.role in 'admin,staff' %}
+            <select id="status-select" onchange="updateTicketStatus('{{ ticket.ticket_id }}', this.value)">
+                <option value="">Change Status</option>
+                <option value="pending" {% if ticket.status == 'pending' %}disabled{% endif %}>Pending</option>
+                <option value="assigned" {% if ticket.status == 'assigned' %}disabled{% endif %}>Assigned</option>
+                <option value="in_progress" {% if ticket.status == 'in_progress' %}disabled{% endif %}>In Progress</option>
+                <option value="resolved" {% if ticket.status == 'resolved' %}disabled{% endif %}>Resolved</option>
+                <option value="closed" {% if ticket.status == 'closed' %}disabled{% endif %}>Closed</option>
+            </select>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="ticket-info-grid">
+        <div class="ticket-main">
+            <div class="ticket-description">
+                <h3>Description</h3>
+                <p>{{ ticket.description|linebreaks }}</p>
+            </div>
+            
+            <div class="ticket-comments">
+                <h3>Comments</h3>
+                
+                {% for comment in ticket.comments.all %}
+                <div class="comment">
+                    <div class="comment-header">
+                        <strong>{{ comment.user.get_full_name|default:comment.user.username }}</strong>
+                        <span class="comment-date">{{ comment.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="comment-body">{{ comment.comment|linebreaks }}</div>
+                </div>
+                {% empty %}
+                <p class="no-comments">No comments yet.</p>
+                {% endfor %}
+                
+                <form method="post" class="comment-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ comment_form.comment }}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="ticket-sidebar">
+            <div class="ticket-meta">
+                <h3>Ticket Information</h3>
+                
+                <div class="meta-item">
+                    <label>Category:</label>
+                    <span class="category-badge category-{{ ticket.category }}">{{ ticket.get_category_display }}</span>
+                </div>
+                
+                <div class="meta-item">
+                    <label>Priority:</label>
+                    <span class="priority-badge priority-{{ ticket.priority }}">{{ ticket.get_priority_display }}</span>
+                </div>
+                
+                <div class="meta-item">
+                    <label>Created by:</label>
+                    <span>{{ ticket.created_by.get_full_name|default:ticket.created_by.username }}</span>
+                </div>
+                
+                <div class="meta-item">
+                    <label>Assigned to:</label>
+                    <span>
+                        {% if ticket.assigned_to %}
+                        {{ ticket.assigned_to.get_full_name|default:ticket.assigned_to.username }}
+                        {% else %}
+                        Unassigned
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="meta-item">
+                    <label>Created:</label>
+                    <span>{{ ticket.created_at|date:"M d, Y H:i" }}</span>
+                </div>
+                
+                <div class="meta-item">
+                    <label>Last Updated:</label>
+                    <span>{{ ticket.updated_at|date:"M d, Y H:i" }}</span>
+                </div>
+            </div>
+            
+            {% if user.userprofile.role == 'admin' and not ticket.assigned_to %}
+            <div class="assignment-section">
+                <h3>Assign Ticket</h3>
+                <form onsubmit="assignTicket(event, '{{ ticket.ticket_id }}')">
+                    <select id="staff-select" required>
+                        <option value="">Select Staff Member</option>
+                        {% for staff in staff_users %}
+                        <option value="{{ staff.id }}">{{ staff.get_full_name|default:staff.username }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Assign</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function updateTicketStatus(ticketId, newStatus) {
+    if (!newStatus) return;
+    
+    const formData = new FormData();
+    formData.append('status', newStatus);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    fetch(`/tickets/${ticketId}/update-status/`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error updating ticket status');
+        }
+    });
+}
+
+function assignTicket(event, ticketId) {
+    event.preventDefault();
+    
+    const staffId = document.getElementById('staff-select').value;
+    if (!staffId) return;
+    
+    const formData = new FormData();
+    formData.append('staff_id', staffId);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    fetch(`/tickets/${ticketId}/assign/`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error assigning ticket');
+        }
+    });
+}
+</script>
+{% endblock %}

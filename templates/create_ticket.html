@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Ticket - ICT Center{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1>Create New Ticket</h1>
+        <p>Describe your technical issue and we'll help you resolve it</p>
+    </div>
+    
+    <form method="post" class="ticket-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.title.id_for_label }}">Issue Title *</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+            <div class="form-errors">{{ form.title.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="{{ form.category.id_for_label }}">Category *</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                <div class="form-errors">{{ form.category.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.priority.id_for_label }}">Priority *</label>
+                {{ form.priority }}
+                {% if form.priority.errors %}
+                <div class="form-errors">{{ form.priority.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Detailed Description *</label>
+            {{ form.description }}
+            <small class="form-help">Please provide as much detail as possible to help us resolve your issue quickly</small>
+            {% if form.description.errors %}
+            <div class="form-errors">{{ form.description.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Create Ticket</button>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
