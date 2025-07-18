@@ -10,7 +10,11 @@ SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = [
+        'redeemer-ict.onrender.com',  # Add your Render domain
+        'localhost',                  # Optional: for local dev
+        '127.0.0.1',                  # Optional: for local dev
+    ]
 
 # Application definition
 INSTALLED_APPS = [
