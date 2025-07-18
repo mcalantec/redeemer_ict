@@ -6,11 +6,20 @@
 <div class="auth-container">
     <div class="auth-card">
         <h2>Create Account</h2>
-        <p>Join the ICT Center ticketing system</p>
+        <p>Join the ICT Directorate ticketing system</p>
         
         <form method="post" class="auth-form">
             {% csrf_token %}
             
+            <div class="form-group">
+                <label for="{{ form.matric_number.id_for_label }}">ID Number</label>
+                {{ form.matric_number }}
+                {% if form.matric_number.errors %}
+                <div class="form-errors">{{ form.matric_number.errors }}</div>
+                {% endif %}
+            </div>
+
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="{{ form.first_name.id_for_label }}">First Name</label>

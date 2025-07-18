@@ -723,6 +723,8 @@ body {
     border-radius: 0.75rem;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
+    display: block; 
+    margin-top: 2rem;
 }
 
 .ticket-meta h3, .assignment-section h3 {
@@ -982,6 +984,22 @@ body {
     margin-bottom: 0.5rem;
     box-shadow: var(--shadow-lg);
     animation: slideIn 0.3s ease;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 1rem;
+    opacity: 0.7;
+    color: var(--text-secondary);
+    align-self: flex-start;
+}
+
+.notification-close:hover {
+    opacity: 1;
 }
 
 .notification.success {

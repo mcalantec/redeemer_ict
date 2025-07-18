@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ ticket.ticket_id }} - ICT Center{% endblock %}
+{% block title %}{{ ticket.ticket_id }} - ICT Directorate{% endblock %}
 
 {% block content %}
 <div class="ticket-detail-container">
@@ -112,6 +112,9 @@
                     <button type="submit" class="btn btn-primary">Assign</button>
                 </form>
             </div>
+            {% endif %}
+            {% if perms.tickets.delete_ticket %}
+                <a href="{% url 'delete_ticket' ticket.ticket_id %}" class="btn btn-danger">Delete Ticket</a>    
             {% endif %}
         </div>
     </div>

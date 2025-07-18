@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 import uuid
 
 class UserProfile(models.Model):
@@ -78,3 +77,14 @@ class TicketComment(models.Model):
     
     class Meta:
         ordering = ['created_at']
+
+class StudentRecord(models.Model):
+    matric_number = models.CharField(max_length=20, unique=True)
+    surname = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
+    programme = models.CharField(max_length=150)
+    level = models.CharField(max_length=20)
+    status = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return f"{self.matric_number} - {self.surname} {self.first_name}"
