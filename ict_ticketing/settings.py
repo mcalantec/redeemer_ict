@@ -15,6 +15,13 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://redeemer-ict.onrender.com',  # Replace with your actual Render URL
+]
+
+CSRF_FAILURE_VIEW = 'django.views.csrf.csrf_failure'
+
 # Application definition
 INSTALLED_APPS = [
     'channels',
@@ -111,4 +118,6 @@ LOGOUT_REDIRECT_URL = '/'
 # Security
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 X_FRAME_OPTIONS = 'DENY'
+
